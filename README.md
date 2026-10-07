@@ -8,7 +8,8 @@ Ask a web map a question in plain language. An LLM agent decides which GIS tools
 
 [![GeoAI WebGIS Agent: the 2 km search area around Universitas Gadjah Mada and the hospitals inside it](docs/screenshots/buffer-query.png)](docs/video/demo.mp4)
 
-▶ [Watch the 74-second demo](docs/video/demo.mp4): hospitals near UGM, the distance from Monas to Bundaran HI, pharmacies inside a buffer around Malioboro, and a reverse-geocoded point, all on Groq with `openai/gpt-oss-20b`.
+▶ [[Watch the 74-second demo](docs/video/demo.mp4)]([url](https://github.com/user-attachments/assets/5e8664ce-8201-49a6-8b62-1be0fd5e24fb)): hospitals near UGM, the distance from Monas to Bundaran HI, pharmacies inside a buffer around Malioboro, and a reverse-geocoded point, all on Groq with `openai/gpt-oss-20b`.
+
 
 <details>
 <summary>More screenshots</summary>
