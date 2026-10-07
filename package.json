@@ -1,0 +1,57 @@
+{
+  "name": "geoai-webgis-agent",
+  "version": "1.0.0",
+  "description": "GeoAI WebGIS Agent: an LLM agent that answers spatial questions with OpenStreetMap tools and shows the results on a Leaflet web map. Works with Gemini, OpenAI, Ollama, Groq and OpenRouter.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "gis",
+    "webgis",
+    "geoai",
+    "geospatial",
+    "ai-agent",
+    "llm",
+    "tool-calling",
+    "function-calling",
+    "openstreetmap",
+    "leaflet",
+    "nominatim",
+    "overpass-api",
+    "turf",
+    "nodejs",
+    "express",
+    "gemini",
+    "openai",
+    "ollama"
+  ],
+  "author": {
+    "name": "Satria Tesa Vici Andi",
+    "url": "https://github.com/satriatva"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/satriatva/geoai-webgis-agent#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/satriatva/geoai-webgis-agent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/satriatva/geoai-webgis-agent/issues"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@google/genai": "^1.38.0",
+    "@turf/turf": "^7.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "leaflet": "^1.9.4"
+  }
+}
