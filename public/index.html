@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GeoAI WebGIS Agent | AI map assistant with LLM tool calling and OpenStreetMap</title>
-  <meta name="description" content="GeoAI WebGIS Agent answers spatial questions in plain language. An LLM agent geocodes places, searches OpenStreetMap, measures distances and draws buffers on a Leaflet web map." />
+  <meta name="description" content="GeoAI WebGIS Agent answers spatial questions in plain language. An LLM agent geocodes places, searches OpenStreetMap, finds what is along a route, measures distances and draws buffers on a Leaflet web map." />
   <meta name="author" content="Satria Tesa Vici Andi" />
   <meta name="keywords" content="GeoAI, WebGIS, GIS, AI agent, LLM, tool calling, OpenStreetMap, Leaflet, Node.js, Gemini, Ollama" />
   <meta name="theme-color" content="#1e5aa8" />
@@ -66,7 +66,8 @@
           <div class="intro" id="intro">
             <h1>Ask the map a question</h1>
             <p>
-              The agent finds places, searches OpenStreetMap, measures distances and draws buffers,
+              The agent finds places, searches OpenStreetMap near a point or along a route, measures
+              distances and draws buffers,
               then puts the answer on the map. Click the map first to ask about a specific point.
             </p>
             <ul class="examples" id="examples" aria-label="Example questions"></ul>
@@ -103,6 +104,7 @@
         <div class="legend" id="map-legend" hidden>
           <span><i class="sw sw-place"></i>Place</span>
           <span><i class="sw sw-poi"></i>Result</span>
+          <span><i class="sw sw-route"></i>Route</span>
           <span><i class="sw sw-buffer"></i>Buffer</span>
           <span><i class="sw sw-line"></i>Distance</span>
         </div>
