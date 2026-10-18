@@ -12,6 +12,7 @@ import { batchOf, linkifyPlaces, registerLayers, renderResults } from './results
 const EXAMPLES = [
   { q: 'Find hospitals within 2 km of Universitas Gadjah Mada', tools: 'Geocode, then nearby search' },
   { q: 'How far is Monas from Bundaran HI?', tools: 'Geocode twice, then measure distance' },
+  { q: "What cafes and fuel stations are on the way from Monas to Blok M?", tools: 'Geocode twice, then search along the road route' },
   { q: 'Draw a 1 km buffer around Malioboro and list the pharmacies inside it', tools: 'Geocode, buffer, nearby search' },
   { q: 'What is at the point I selected on the map?', tools: 'Reverse geocode (click the map first)' },
 ];
@@ -21,6 +22,7 @@ const TOOL_LABELS = {
   geocode_place: 'Find place',
   reverse_geocode: 'Look up address',
   find_nearby_places: 'Search nearby places',
+  find_places_along_route: 'Search along route',
   measure_distance: 'Measure distance',
   create_buffer: 'Draw buffer',
 };

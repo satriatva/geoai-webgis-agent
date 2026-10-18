@@ -19,7 +19,7 @@ const FIT_MAX_ZOOM = 16;
 const FOCUS_ZOOM = 17;
 const COORD_DECIMALS = 6;
 
-const KIND_LABEL = { place: 'Place', poi: 'Result', center: 'Search centre' };
+const KIND_LABEL = { place: 'Place', poi: 'Result', center: 'Search centre', 'route-end': 'Route end' };
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const round = (n) => +n.toFixed(COORD_DECIMALS);
@@ -67,7 +67,7 @@ export function createMap({ onPointSelected, onCursorMove = () => {}, onZoom = (
 
   // ---- Styling of agent layers ----
   // Points keep their own clicks (bubblingMouseEvents: false), so clicking a result opens its
-  // popup instead of selecting a point. Buffers and lines are not interactive, so a click
+  // popup instead of selecting a point. Buffers, routes and lines are not interactive, so a click
   // inside a buffer still selects a point.
   function styleFor(feature) {
     const kind = feature.properties?.kind;
@@ -76,6 +76,7 @@ export function createMap({ onPointSelected, onCursorMove = () => {}, onZoom = (
       return { color, weight: 1.5, fillColor: color, fillOpacity: 0.08, dashArray: '4 4', interactive: false };
     }
     if (kind === 'line') return { color: cssVar('--sym-line'), weight: 3, dashArray: '8 6', interactive: false };
+    if (kind === 'route') return { color: cssVar('--sym-route'), weight: 4, lineCap: 'round', lineJoin: 'round', interactive: false };
     return {};
   }
 
@@ -84,6 +85,7 @@ export function createMap({ onPointSelected, onCursorMove = () => {}, onZoom = (
     const base = { bubblingMouseEvents: false, color: '#fff', fillOpacity: 1 };
     if (kind === 'place') return L.circleMarker(latlng, { ...base, radius: 9, weight: 2, fillColor: cssVar('--sym-place') });
     if (kind === 'center') return L.circleMarker(latlng, { ...base, radius: 5, weight: 2, color: cssVar('--sym-place'), fillColor: '#fff' });
+    if (kind === 'route-end') return L.circleMarker(latlng, { ...base, radius: 6, weight: 3, color: cssVar('--sym-route'), fillColor: '#fff' });
     return L.circleMarker(latlng, { ...base, radius: 7, weight: 1.5, fillColor: cssVar('--sym-poi') });
   }
 

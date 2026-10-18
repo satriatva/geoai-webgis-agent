@@ -11,7 +11,8 @@ let batchSeq = 0;
 
 /**
  * Give every feature in an answer's layers an id ("r<batch>-<layer>-<feature>") and return
- * the named points as list items: geocoded places first, then results nearest first.
+ * the named points as list items: geocoded places first, then results in travel order along a
+ * route, or nearest first.
  */
 export function registerLayers(layers) {
   const batch = `r${++batchSeq}`;
@@ -25,10 +26,11 @@ export function registerLayers(layers) {
       const key = `${p.title}|${f.geometry.coordinates.join(',')}`;
       if (seen.has(key)) return; // the same place returned by two tools
       seen.add(key);
-      items.push({ fid: p.fid, title: p.title, kind: p.kind, distance: p.distance_m });
+      items.push({ fid: p.fid, title: p.title, kind: p.kind, distance: p.distance_m, along: p.along_km });
     });
   });
-  items.sort((a, b) => (a.kind === b.kind ? (a.distance ?? 0) - (b.distance ?? 0) : a.kind === 'place' ? -1 : 1));
+  const order = (it) => it.along ?? (it.distance ?? 0) / 1000;
+  items.sort((a, b) => (a.kind === b.kind ? order(a) - order(b) : a.kind === 'place' ? -1 : 1));
   return { batch, items };
 }
 
@@ -37,6 +39,12 @@ export const batchOf = (fid) => fid.split('-')[0];
 
 /** Short display name: Nominatim names are long ("Malioboro, Sosromenduran, ..."). */
 const shortName = (title) => title.split(',')[0].trim();
+
+/** Along a route, show the position like a road kilometre post ("km 2.4"); elsewhere the distance. */
+const distanceLabel = (it) =>
+  it.along != null
+    ? `<span class="dist" title="${it.along} km along the route">km ${it.along.toFixed(1)}</span>`
+    : `<span class="dist">${formatDistance(it.distance)}</span>`;
 
 /** List of the places drawn on the map, shown under the answer. */
 export function renderResults(items) {
@@ -50,7 +58,7 @@ export function renderResults(items) {
       .map((it) => `<li><button type="button" class="result-item" data-fid="${it.fid}" title="${escapeHtml(it.title)}">
           <span class="dot ${it.kind}"></span>
           <span class="name">${escapeHtml(shortName(it.title))}</span>
-          <span class="dist">${formatDistance(it.distance)}</span></button></li>`)
+          ${distanceLabel(it)}</button></li>`)
       .join('')}</ol>`;
   return box;
 }
