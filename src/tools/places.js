@@ -40,6 +40,30 @@ export function buildOverpassQuery({ lat, lon, category, radius_m }) {
   return `[out:json][timeout:25];(node["${k}"="${v}"]${around};way["${k}"="${v}"]${around};);out center 100;`;
 }
 
+/** POST an Overpass QL query and return its elements. */
+export async function runOverpass(query, { timeoutMs = OVERPASS_TIMEOUT_MS } = {}) {
+  const json = await fetchJson(config.overpassUrl, {
+    method: 'POST',
+    body: new URLSearchParams({ data: query }).toString(),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    timeoutMs,
+  });
+  return json.elements || [];
+}
+
+/** Overpass node or way (with `out center`) to { name, lat, lon, osm }, or null without a position. */
+export function elementToPlace(el, category) {
+  const lat = el.lat ?? el.center?.lat;
+  const lon = el.lon ?? el.center?.lon;
+  if (lat == null || lon == null) return null;
+  return {
+    name: el.tags?.name || `Unnamed ${category.replace(/_/g, ' ')}`,
+    lat,
+    lon,
+    osm: `${el.type}/${el.id}`,
+  };
+}
+
 /** Points of interest of one category within a radius, nearest first (OpenStreetMap Overpass). */
 export async function findNearbyPlaces({ lat, lon, category, radius_m = 1000, limit = 10 }) {
   assertLatLon(lat, lon);
@@ -47,28 +71,11 @@ export async function findNearbyPlaces({ lat, lon, category, radius_m = 1000, li
   const radius = clamp(Number(radius_m) || DEFAULT_RADIUS_M, MIN_RADIUS_M, MAX_RADIUS_M);
   const max = clamp(Number(limit) || DEFAULT_LIMIT, 1, MAX_RESULTS);
 
-  const query = buildOverpassQuery({ lat, lon, category, radius_m: radius });
-  const json = await fetchJson(config.overpassUrl, {
-    method: 'POST',
-    body: new URLSearchParams({ data: query }).toString(),
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    timeoutMs: OVERPASS_TIMEOUT_MS,
-  });
-
-  const places = (json.elements || [])
-    .map((el) => {
-      const pLat = el.lat ?? el.center?.lat;
-      const pLon = el.lon ?? el.center?.lon;
-      if (pLat == null || pLon == null) return null;
-      return {
-        name: el.tags?.name || `Unnamed ${category.replace(/_/g, ' ')}`,
-        lat: pLat,
-        lon: pLon,
-        distance_m: distanceMeters(lat, lon, pLat, pLon),
-        osm: `${el.type}/${el.id}`,
-      };
-    })
+  const elements = await runOverpass(buildOverpassQuery({ lat, lon, category, radius_m: radius }));
+  const places = elements
+    .map((el) => elementToPlace(el, category))
     .filter(Boolean)
+    .map((p) => ({ ...p, distance_m: distanceMeters(lat, lon, p.lat, p.lon) }))
     .sort((a, b) => a.distance_m - b.distance_m);
 
   const top = places.slice(0, max);
