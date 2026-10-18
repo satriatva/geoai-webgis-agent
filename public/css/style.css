@@ -23,6 +23,7 @@
   --sym-place: #e0661b;
   --sym-poi: #be2f78;
   --sym-line: #4a4fb5;
+  --sym-route: #163e72;        /* darker than the buffer blue so the route reads over every road colour */
   --sym-buffer: #1e5aa8;
   --sym-selected: #d29b00;
 
@@ -54,6 +55,7 @@
   --sym-place: #f28b46;
   --sym-poi: #ec7ab5;
   --sym-line: #a3a8ff;
+  --sym-route: #a9cdf7;
   --sym-buffer: #7fb2ee;
   --sym-selected: #f2c94c;
 
@@ -302,6 +304,7 @@ button svg { width: 18px; height: 18px; flex: none; } /* icons only: Leaflet dra
 .sw-poi { background: var(--sym-poi); }
 .sw-buffer { border-radius: 2px; border: 1.5px dashed var(--sym-buffer); background: color-mix(in srgb, var(--sym-buffer) 12%, transparent); }
 .sw-line { width: 14px; height: 0; border-radius: 0; border-top: 2px dashed var(--sym-line); }
+.sw-route { width: 14px; height: 0; border-radius: 0; border-top: 3px solid var(--sym-route); }
 
 /* Leaflet overrides */
 .leaflet-container { font-family: var(--font); }
@@ -353,6 +356,7 @@ button svg { width: 18px; height: 18px; flex: none; } /* icons only: Leaflet dra
   .composer-foot { justify-content: flex-end; }
   .legend { top: 12px; left: auto; right: 12px; }
   .collar { bottom: 22px; }
+  .result-item { min-height: 44px; }
 
   .view-switch {
     display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 6px 12px calc(6px + env(safe-area-inset-bottom));

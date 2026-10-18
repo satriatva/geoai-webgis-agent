@@ -9,7 +9,7 @@ How to run GeoAI WebGIS Agent locally with each model provider. The short versio
 | [Node.js](https://nodejs.org) | 18.17 or newer (20 LTS or 22 LTS recommended) | `node -v` |
 | npm | comes with Node.js | `npm -v` |
 | Git | to clone the repository | `git --version` |
-| Internet access | always needed for OpenStreetMap services (Nominatim, Overpass) and map tiles | |
+| Internet access | always needed for OpenStreetMap services (Nominatim, Overpass), OSRM routing and map tiles | |
 | A model provider | one of the options in section 2 | |
 
 ```bash
@@ -142,6 +142,7 @@ All settings live in `.env`; [`.env.example`](../.env.example) lists them with c
 | `MAX_AGENT_STEPS` | `6` | Model turns that may call tools before the agent must answer |
 | `CONTACT_EMAIL` | none | Added to the User-Agent sent to OpenStreetMap services; set it before you deploy |
 | `NOMINATIM_URL`, `OVERPASS_URL` | public servers | Point to your own instances for heavier use |
+| `OSRM_URL` | `https://router.project-osrm.org` | Road routes for along-route search; the demo server allows one request per second and light, non-commercial use |
 | `PORT` | `3000` | HTTP port |
 
 ## 4. Troubleshooting
@@ -159,5 +160,7 @@ All settings live in `.env`; [`.env.example`](../.env.example) lists them with c
 | Plain fonts or a broken layout after an update | New dependencies not installed | Run `npm install` and restart |
 | `EADDRINUSE: 3000` | Port already in use | Stop the other process or set `PORT=3001` in `.env` |
 | No places found | Public Overpass server busy | Retry later or set `OVERPASS_URL` to another instance |
+| `no road route between these points` | A point is off the road network (sea, island without a road link) | Pick points on land that a car can reach |
+| `along-route search supports routes up to 50 km` | The road route is too long for one corridor query | Ask about a shorter stretch of the trip |
 
 Server-side errors are printed in the terminal with an `[agent]` prefix.

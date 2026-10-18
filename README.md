@@ -4,15 +4,24 @@
 ![Node](https://img.shields.io/badge/node-%E2%89%A518.17-339933?logo=node.js&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-Ask a web map a question in plain language. An LLM agent decides which GIS tools to run (geocoding, nearby search, distance, buffer), the Node.js backend runs them against OpenStreetMap, and the answer appears in the chat and on a Leaflet map.
+Ask a web map a question in plain language. An LLM agent decides which GIS tools to run (geocoding, nearby search, search along a route, distance, buffer), the Node.js backend runs them against OpenStreetMap, and the answer appears in the chat and on a Leaflet map.
 
 [![GeoAI WebGIS Agent: the 2 km search area around Universitas Gadjah Mada and the hospitals inside it](docs/screenshots/buffer-query.png)](docs/video/demo.mp4)
 
-▶ [[Watch the 74-second demo](docs/video/demo.mp4)]([url](https://github.com/user-attachments/assets/5e8664ce-8201-49a6-8b62-1be0fd5e24fb)): hospitals near UGM, the distance from Monas to Bundaran HI, pharmacies inside a buffer around Malioboro, and a reverse-geocoded point, all on Groq with `openai/gpt-oss-20b`.
+▶ [Watch the 74-second demo](docs/video/demo.mp4): hospitals near UGM, the distance from Monas to Bundaran HI, pharmacies inside a buffer around Malioboro, and a reverse-geocoded point, all on Groq with `openai/gpt-oss-20b`. The video was recorded for 1.0.0 and does not show the along-route search.
 
+https://github.com/user-attachments/assets/5e8664ce-8201-49a6-8b62-1be0fd5e24fb
 
 <details>
 <summary>More screenshots</summary>
+
+What is on the way from Monas to Blok M: the car route, its 300 m corridor, and the cafes and fuel stations along it in travel order:
+
+![Cafes and fuel stations along the route from Monas to Blok M](docs/screenshots/along-route.png)
+
+A fuel station selected from the list, with its position along the route:
+
+![Popup of a fuel station showing its distance along the route](docs/screenshots/along-route-popup.png)
 
 Select a result in the list (or a name in the answer) to zoom to it and open its popup:
 
@@ -29,6 +38,7 @@ Start screen in the light and dark themes:
 
 - Works with any LLM that supports tool calling. Pick the provider and model in the app: Google Gemini, OpenAI, or open models such as Qwen 3 and Llama 3 through Ollama, Groq or OpenRouter.
 - Plans multi-step questions on its own. "Pharmacies within 1 km of Malioboro" becomes geocode, buffer, then a nearby search.
+- Finds what is on the way. "Cafes and fuel stations from Monas to Blok M" gets the car route from OSRM, searches a corridor along the road and lists the places in travel order, each marked with its kilometre along the route.
 - Shows its work while it runs. Each tool call appears live with its arguments and run time, and stays available as a trace under the answer.
 - Draws every result on the map as GeoJSON. Place names in the answer and the result list are clickable: the map zooms to the place and opens a popup with distance, category, coordinates and a link to OpenStreetMap.
 - Understands map context. Click the map to select a point, then ask "what is here?" or "find cafes near this point".
@@ -41,6 +51,7 @@ Some questions to try:
 | --- | --- |
 | Find hospitals within 2 km of Universitas Gadjah Mada | `geocode_place`, `find_nearby_places` |
 | How far is Monas from Bundaran HI? | `geocode_place` (twice), `measure_distance` |
+| What cafes and fuel stations are on the way from Monas to Blok M? | `geocode_place` (twice), `find_places_along_route` |
 | Draw a 1 km buffer around Malioboro and list the pharmacies inside it | `geocode_place`, `create_buffer`, `find_nearby_places` |
 | What is at the point I selected? | `reverse_geocode` |
 
@@ -51,8 +62,8 @@ Some questions to try:
 | Backend | Node.js 18+, Express 5, Turf.js |
 | LLM providers | Google Gemini (`@google/genai`); OpenAI, Ollama, Groq, OpenRouter, LM Studio or vLLM through the OpenAI Chat Completions format |
 | Frontend | Vanilla JavaScript (ES modules), Leaflet, OpenStreetMap tiles, IBM Plex (self-hosted) |
-| Data | OpenStreetMap through Nominatim and the Overpass API |
-| Quality | Node test runner (44 offline tests), GitHub Actions on Node 20 and 22 |
+| Data | OpenStreetMap through Nominatim and the Overpass API; road routes from OSRM |
+| Quality | Node test runner (53 offline tests), GitHub Actions on Node 20 and 22 |
 
 ## Quick start
 
@@ -89,7 +100,7 @@ sequenceDiagram
         S->>L: conversation + tool declarations
         L-->>S: tool calls
         S->>T: run each tool
-        T->>O: Nominatim / Overpass request (throttled, cached)
+        T->>O: Nominatim / Overpass / OSRM request (throttled, cached)
         O-->>T: JSON
         T-->>S: data for the model, GeoJSON for the map
         S-->>U: progress event (streamed)
@@ -106,6 +117,7 @@ The loop is in [`src/agent.js`](src/agent.js). It keeps the conversation in a pr
 | `geocode_place` | Place name or address to coordinates | Nominatim |
 | `reverse_geocode` | Coordinates to address and administrative areas | Nominatim |
 | `find_nearby_places` | Places of one category within a radius (up to 5 km), nearest first | Overpass API |
+| `find_places_along_route` | Places of up to three categories within a corridor along the road route (car, up to 50 km), in travel order | OSRM, Overpass API |
 | `measure_distance` | Straight-line distance and compass bearing | Turf.js |
 | `create_buffer` | Circular buffer and its area | Turf.js |
 
@@ -136,7 +148,7 @@ src/
   agent.js               tool-calling loop
   config.js              settings from .env
   llm/                   provider presets and adapters (Gemini, OpenAI-compatible)
-  tools/                 geocoding, nearby search, distance, buffer, HTTP helpers
+  tools/                 geocoding, nearby and along-route search, distance, buffer, HTTP helpers
 public/
   index.html, css/       web client
   js/app.js              conversation and live progress
@@ -145,6 +157,7 @@ public/
   js/results.js          clickable results
 test/                    unit and API tests with a fake model and mocked network
 docs/SETUP.md            setup per provider, settings, troubleshooting
+CHANGELOG.md             changes per release
 docs/screenshots/, docs/video/   images and the demo recording used in this README
 ```
 
@@ -154,21 +167,23 @@ docs/screenshots/, docs/video/   images and the demo recording used in this READ
 
 **The model gets data, the map gets geometry.** Keeping GeoJSON out of the prompt keeps requests small and cheap, and the model's answer stays grounded in what the tools returned.
 
-**Fair use of OpenStreetMap services.** Nominatim calls are limited to one per second, every request has an identifying User-Agent, and identical queries are cached for 10 minutes, as the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) asks.
+**Fair use of OpenStreetMap services.** Nominatim and OSRM calls are limited to one per second, every request has an identifying User-Agent, and identical queries are cached for 10 minutes, as the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) asks.
 
 **Failures do not end the conversation.** A failing tool sends its error back to the model, which can fix the arguments or explain the problem. Rate limits and server errors from the provider are retried with backoff, using the delay the provider suggests.
 
-**Every loop has a limit.** Search radius, result count, conversation length and agent steps are capped on the server. If a model repeats an identical call, the earlier result is reused (shown as ↺ in the trace). When the step budget runs out, the model is asked for an answer with tools turned off, so the user always gets a reply.
+**Every loop has a limit.** Search radius, route length, result count, conversation length and agent steps are capped on the server. If a model repeats an identical call, the earlier result is reused (shown as ↺ in the trace). When the step budget runs out, the model is asked for an answer with tools turned off, so the user always gets a reply.
 
 **Small surface on the client.** No framework and no CDN: Leaflet and the fonts are served from `node_modules`, and model output is escaped before it is rendered.
 
 ## Roadmap
 
-- Road distance and travel-time areas with OSRM or Valhalla (distances are straight-line today).
+- Travel-time areas and walking or cycling routes. Along-route search uses car routes from OSRM; `measure_distance` is still straight-line.
 - A PostGIS tool for querying your own spatial datasets.
 - Exposing the GIS tools as an MCP server so other agents can use them.
 
-The public Nominatim and Overpass servers are rate-limited, so heavier use needs self-hosted instances.
+The public Nominatim, Overpass and OSRM servers are rate-limited, so heavier use needs self-hosted instances. On a busy day an along-route search can take close to a minute, most of it waiting for the public Overpass server.
+
+What changed in each release is in [CHANGELOG.md](CHANGELOG.md).
 
 ## Background
 
