@@ -1,6 +1,7 @@
 import { geocodePlace, reverseGeocode } from './geocode.js';
 import { findNearbyPlaces, CATEGORIES } from './places.js';
 import { measureDistance, createBuffer } from './geometry.js';
+import { findPlacesAlongRoute } from './route.js';
 
 const latLon = {
   type: 'object',
@@ -69,6 +70,32 @@ export const tools = {
       },
     },
     run: findNearbyPlaces,
+  },
+
+  find_places_along_route: {
+    declaration: {
+      name: 'find_places_along_route',
+      description:
+        'List places of up to three categories along the road route between two coordinates, in ' +
+        'travel order. Use it for "what is on the way from A to B", "along the route" or "between A ' +
+        'and B" questions. The route is by car from OSRM and may be up to 50 km long.',
+      parameters: {
+        type: 'object',
+        properties: {
+          origin: latLon,
+          destination: latLon,
+          categories: {
+            type: 'array',
+            items: { type: 'string', enum: Object.keys(CATEGORIES) },
+            description: 'One to three place categories, e.g. ["cafe", "fuel"]',
+          },
+          corridor_m: { type: 'number', description: 'Maximum distance from the road in metres (50-1000), default 300' },
+          limit: { type: 'integer', description: 'Maximum results to return (1-25), default 15' },
+        },
+        required: ['origin', 'destination', 'categories'],
+      },
+    },
+    run: findPlacesAlongRoute,
   },
 
   measure_distance: {

@@ -15,6 +15,8 @@ export const config = {
   maxAgentSteps: positive(process.env.MAX_AGENT_STEPS, 6),
   nominatimUrl: process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org',
   overpassUrl: process.env.OVERPASS_URL || 'https://overpass-api.de/api/interpreter',
+  // NOTE: the OSRM demo server is for light, non-commercial use; self-host OSRM for anything heavier.
+  osrmUrl: process.env.OSRM_URL || 'https://router.project-osrm.org',
   // NOTE: the Nominatim usage policy asks for an identifying User-Agent with contact details.
   // Set CONTACT_EMAIL in .env when you deploy the app.
   userAgent: `geoai-webgis-agent/1.0 (${process.env.CONTACT_EMAIL || REPO_URL})`,
